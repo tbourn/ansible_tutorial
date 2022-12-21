@@ -3,3 +3,5 @@ Makefile
 requirements.txt
 collections.yml
 inventory*
+.vscode
+.env*
