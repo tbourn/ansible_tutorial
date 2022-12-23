@@ -1,0 +1,19 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: UPDATE REPO INDEX
+    apt:
+      update_cache: yes
+
+  - name: INSTALL apache2 PACKAGE
+    apt:
+      name: apache2
+      state: absent
+
+  - name: ADD PHP SUPPORT FOR APACHE
+    apt:
+      name: libapache2-mod-php
+      state: absent
