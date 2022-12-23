@@ -11,3 +11,9 @@
   - name: INSTALL apache2 PACKAGE
     apt:
       name: apache2
+      state: latest
+
+  - name: ADD PHP SUPPORT FOR APACHE
+    apt:
+      name: libapache2-mod-php
+      state: latest
