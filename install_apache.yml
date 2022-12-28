@@ -4,16 +4,33 @@
   become: true
   tasks:
 
-  - name: UPDATE REPO INDEX
+  - name: INSTALL apache2 and php
     apt:
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest
       update_cache: yes
+    when: ansible_distribution in ["Debian", "Ubuntu"]
 
-  - name: INSTALL apache2 PACKAGE
-    apt:
-      name: apache2
+  - name: INSTALL apache2 and php PACKAGE for CentOS
+    yum:
+      name: 
+        - httpd
+        - php
       state: latest
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
 
-  - name: ADD PHP SUPPORT FOR APACHE
-    apt:
-      name: libapache2-mod-php
-      state: latest
+  # - name: UPDATE REPO INDEX
+  #   zypper:
+  #     update_cache: yes
+  #   when: ansible_distribution == "SLED"
+
+  # - name: INSTALL apache2 PACKAGE
+  #   zypper:
+  #     name: 
+  #       - apache2
+  #       - apache2-mod_php7
+  #     state: latest
+  #   when: ansible_distribution == "SLED"

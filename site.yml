@@ -1,0 +1,82 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (CentOS)
+    tags: always
+    yum:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: install updates (Ubuntu)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: web_servers
+  become: true
+  tasks:
+
+  - name: INSTALL apache2 and php for Ubuntu
+    tags: apache,apache2,ubuntu
+    apt:
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: INSTALL apache2 and php PACKAGE for CentOS
+    tags: apache,centos,httpd
+    yum:
+      name: 
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+   - name: install mariadb package (CentOS)
+     tags: centos,db,mariadb
+     yum:
+       name: mariadb-server
+       state: latest
+     when: ansible_distribution == "CentOS"
+  
+   - name: install mariadb package (Ubuntu)
+     tags: ubuntu,db,mariadb
+     apt:
+       name: mariadb
+       state: latest
+     when: ansible_distribution == "Ubuntu"
+
+# - hosts: file_servers
+#   become: true
+#   tasks:
+
+#   - name: install samba package
+#     package:
+#       name: samba
+#       state: latest
+
+  # - name: UPDATE REPO INDEX
+  #   zypper:
+  #     update_cache: yes
+  #   when: ansible_distribution == "SLED"
+
+  # - name: INSTALL apache2 PACKAGE
+  #   zypper:
+  #     name: 
+  #       - apache2
+  #       - apache2-mod_php7
+  #     state: latest
+  #   when: ansible_distribution == "SLED"
