@@ -1,0 +1,44 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (CentOS)
+    tags: always
+    yum:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: install updates (Ubuntu)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: all
+  become: true
+  tasks:
+    
+  - name: create dummy user
+    tags: always
+    user:
+      name: dummy
+      groups: root
+
+  - name: add ssh key for dummy
+    tags: always
+    authorized_key:
+      user: dummy
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKz+koXPo6ituBDvs66NklknHZIJkm09QOCkvrakaj8M ansible"
+      
+  - name: add sudoers file for dummy
+    tags: always
+    copy:
+      src: sudoer_dummy
+      dest: /etc/sudoers.d/dummy
+      owner: root
+      group: root
+      mode: 0440
