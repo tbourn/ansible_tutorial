@@ -18,6 +18,31 @@
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
+- hosts: all
+  become: true
+  tasks:
+    
+  - name: create dummy user
+    tags: always
+    user:
+      name: dummy
+      groups: root
+
+  - name: add ssh key for dummy
+    tags: always
+    authorized_key:
+      user: dummy
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKz+koXPo6ituBDvs66NklknHZIJkm09QOCkvrakaj8M ansible"
+      
+  - name: add sudoers file for dummy
+    tags: always
+    copy:
+      src: sudoer_dummy
+      dest: /etc/sudoers.d/dummy
+      owner: root
+      group: root
+      mode: 0440
+
 - hosts: workstations
   become: true
   tasks:
@@ -57,6 +82,30 @@
         - php
       state: latest
     when: ansible_distribution == "CentOS"
+
+  - name: start httpd (CentOS)
+    tags: apache,centos,httpd
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: change e-mail address for admin
+    tags: apache,centos,httpd
+    lineinfile: 
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin somebody@somewhere.net
+    when: ansible_distribution == "CentOS"
+    register: httpd
+
+  - name: restart httpd (CentOS)
+    tags: apache,centos,httpd
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
 
   - name: copy default html file for site
     tags: apache,apache2,httpd
