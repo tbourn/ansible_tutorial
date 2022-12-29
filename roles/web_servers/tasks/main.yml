@@ -1,45 +1,26 @@
-- name: INSTALL apache2 and php for Ubuntu
-  tags: apache,apache2,ubuntu
-  apt:
+- name: INSTALL apache and php
+  tags: apache,httpd,php
+  package:
     name: 
-      - apache2
-      - libapache2-mod-php
+      - "{{ apache_package_name }}"
+      - "{{ php_package_name }}"
     state: latest
-    update_cache: yes
-  when: ansible_distribution == "Ubuntu"
-
-- name: INSTALL apache2 and php PACKAGE for CentOS
-  tags: apache,centos,httpd
-  yum:
-    name: 
-      - httpd
-      - php
-    state: latest
-  when: ansible_distribution == "CentOS"
 
 - name: start httpd (CentOS)
-  tags: apache,centos,httpd
+  tags: apache,httpd
   service:
-    name: httpd
+    name: "{{ apache_service }}"
     state: started
     enabled: yes
-  when: ansible_distribution == "CentOS"
 
 - name: change e-mail address for admin
   tags: apache,centos,httpd
   lineinfile: 
     path: /etc/httpd/conf/httpd.conf
     regexp: '^ServerAdmin'
-    line: ServerAdmin somebody@somewhere.net
+    line: ServerAdmin user@centos.com
   when: ansible_distribution == "CentOS"
-  register: httpd
-
-- name: restart httpd (CentOS)
-  tags: apache,centos,httpd
-  service:
-    name: httpd
-    state: restarted
-  when: httpd.changed
+  notify: restart_apache
 
 - name: copy default html file for site
   tags: apache,apache2,httpd
